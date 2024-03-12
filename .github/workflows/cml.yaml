@@ -7,14 +7,15 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: iterative/setup-cml@v1
-      - name: 'Train model'
-        env:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Train model
         run: |
           # Your ML workflow goes here
           pip install -r requirements.txt
           python model.py
-
+      - name: Write CML report
+        env:
+          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
           echo "## Model Metrics" > report.md
           cat metrics.txt >> report.md
           
