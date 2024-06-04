@@ -1,0 +1,31 @@
+name: mlops-test
+on: [push]
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    container: docker://dvcorg/cml-py3:latest
+    permissions:
+      issues: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+      - uses: iterative/setup-cml@v2
+        with:
+          version: 'v0.20.0'
+          vega: false
+      - name: Train model
+        env:
+          REPO_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          pip install -r requirements.txt
+          python model.py
+
+          echo "### Model Metrics ###" > report.md
+          cat metrics.txt >> report.md
+
+          echo "\nModel performance metrics are on the plot below." >> report.md
+
+          cml-publish model_results.png --md >> report.md
+
+          cml comment create report.md
